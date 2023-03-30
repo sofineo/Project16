@@ -9,10 +9,7 @@ class UserControllers {
     const { name, email } = request.body
     let { password } = request.body
 
-    // const database = await sqliteConnection()
-    // const checkIfUserExits = await database.get("SELECT * FROM users where email = (?)", [email] )
-    const checkIfUserExits = await knex.select().from('users').where({ email }).first() ?? valorDefault
-    console.log(checkIfUserExits)
+    const checkIfUserExits = await knex.select().from('users').where({ email }).first() //como knex volta um array, colocar first() para voltar o primeiro, caso não exista, será undefined
 
     if (checkIfUserExits) {
       throw new AppError("This email is already in use.")
@@ -34,13 +31,14 @@ class UserControllers {
     const { id } = request.params
 
     const database = await sqliteConnection()
-    const user = database.get("SELECT * FROM user WHERE id = (?)", [id])
+
+    const user = await knex.select().from('users').where({ id }).first()
 
     if (!user) {
       throw new AppError("User not found!")
     }
 
-    const userWithUpdatedEmail = database.get("SELECT * FROM user WHERE email = (?)", [email])
+    const userWithUpdatedEmail = await knex.select().from('users').where({ email }).first()
 
     if (userWithUpdatedEmail && userWithUpdatedEmail.id !== user.id) {
       throw new AppError("This email is already in use.")
@@ -50,7 +48,7 @@ class UserControllers {
     user.email = email ?? user.email
 
     if (password && !old_password) {
-      throw new AppError("Old password must be informed to define a new password")
+      throw new AppError("Old password must be informed to define a new password") 
     } 
     
     if (password && old_password) {
@@ -63,16 +61,16 @@ class UserControllers {
       user.password = await hash(password, 8)
     }
 
-    await database.run(`UPDATE users SET name = ?, email = ?, password = ? updated_at = DATETIME(now') WHERE id = ?`, [user.name, user.email, user.password, id])
+    await knex('users').where(({ id })).update({
+      name: user.name,
+      email: user.email,
+      password: user.password,
+      updated_at: knex.fn.now()
+    })
 
     return response.status(200).json()
   }
 
-  index() {}
-
-  show() {}
-
-  delete() {}
 }
 
 module.exports = UserControllers
