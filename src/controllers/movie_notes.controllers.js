@@ -40,8 +40,6 @@ class MovieNotesControllers {
 
   async index(request, response) {
     const { user_id, title, tags} = request.query
-
-    console.log(tags)
   
     let notes
 
