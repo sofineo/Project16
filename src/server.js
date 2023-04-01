@@ -1,10 +1,11 @@
+require("express-async-errors")
+const AppError = require("./utils/AppError")
+
 const express = require("express")
 
 const database = require("./database/sqlite")
 
-const AppError = require("./utils/AppError")
-
-const routes = require("./routes")
+const routes = require("./routers")
 
 const app = express()
 app.use(express.json())

@@ -6,8 +6,7 @@ const knex = require("../database/knex")
 class UserControllers {
 
   async create(request, response){
-    const { name, email } = request.body
-    let { password } = request.body
+    const { name, email, password } = request.body
 
     const checkIfUserExits = await knex.select().from('users').where({ email }).first() //como knex volta um array, colocar first() para voltar o primeiro, caso não exista, será undefined
 
@@ -16,12 +15,11 @@ class UserControllers {
     }
 
     const hashedPassword = await hash(password, 8)
-    password = hashedPassword
 
     await knex("users").insert({
       name, 
       email, 
-      password})
+      password: hashedPassword})
 
     return response.status(201).json()
   }
