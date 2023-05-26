@@ -27,7 +27,7 @@ class MovieTagsControllers {
   }
 
   async index(request, response) {
-    const { user_id } = request.params
+    const user_id = request.user.id
 
     const tags = await knex.select().from('movie_tags').where({ user_id})
 
